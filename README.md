@@ -37,4 +37,61 @@ This project uses Docker to containerize the `hello.py` script.
    docker run --rm hello-devops
    ```
 
-Output should be:
+Output: hello-devops
+
+
+
+
+
+## 5. Job Deployment with Nomad
+
+I used a Nomad service job to run the Docker container.
+
+### How to run
+
+1. Ensure the Docker image exists:
+
+```bash
+docker build -t hello-devops .
+```
+
+2. Start Nomad in dev mode:
+
+```bash
+nomad agent -dev
+```
+
+3. Run the Nomad job:
+
+```bash
+nomad job run nomad/hello.nomad
+```
+
+4. Check status:
+
+```bash
+nomad status hello-devops
+```
+
+
+##  6. Monitoring with Grafana Loki
+
+I run Loki locally in Docker to collect logs from containers.
+
+### How to reproduce
+
+1. Start Loki:
+
+```bash
+docker run -d --name loki -p 3100:3100 grafana/loki:2.9.1
+```
+
+2. Install and use `logcli` to query logs:
+
+```bash
+docker run --rm -it --network host grafana/logcli:2.9.1 \
+  --addr=http://localhost:3100 \
+  query '{job="docker"}' --limit=20
+```
+
+Details: see `monitoring/loki_setup.txt`.

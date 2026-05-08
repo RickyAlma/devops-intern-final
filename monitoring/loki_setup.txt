@@ -1,0 +1,35 @@
+Monitoring Setup with Grafana Loki
+
+1. How Loki was started:
+
+I run Loki in Docker using the official image:
+
+docker run -d \
+  --name loki \
+  -p 3100:3100 \
+  grafana/loki:2.9.1
+
+This exposes Loki's HTTP API on port 3100.
+
+2. How to view the logs:
+
+Use the `logcli` tool (Loki CLI):
+
+docker run --rm -it \
+  --network host \
+  grafana/logcli:2.9.1 \
+  --addr=http://localhost:3100 \
+  query '{job="docker"}' --limit=20
+
+
+Create monitoring/docker-compose.yml:
+
+version: '3'
+services:
+  loki:
+    image: grafana/loki:2.9.1
+    ports:
+      - "3100:3100"
+
+Then run:
+  docker-compose -f monitoring/docker-compose.yml up -d
