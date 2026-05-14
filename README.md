@@ -89,9 +89,17 @@ docker run -d --name loki -p 3100:3100 grafana/loki:2.9.1
 2. Install and use `logcli` to query logs:
 
 ```bash
-docker run --rm -it --network host grafana/logcli:2.9.1 \
+ddocker run --rm -it --network host grafana/logcli:latest \
   --addr=http://localhost:3100 \
   query '{job="docker"}' --limit=20
 ```
 
 Details: see `monitoring/loki_setup.txt`.
+
+
+
+## 7. Extra Credit – MLflow Tracking
+
+I attempted to log a dummy MLflow experiment to demonstrate tracking capabilities, however, local environment restrictions prevented the global installation of the necessary Python packages
+
+
