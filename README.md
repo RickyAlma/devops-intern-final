@@ -93,7 +93,6 @@ ddocker run --rm -it --network host grafana/logcli:latest \
   --addr=http://localhost:3100 \
   query '{job="docker"}' --limit=20
 ```
-
 Details: see `monitoring/loki_setup.txt`.
 
 
