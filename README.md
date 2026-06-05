@@ -1,4 +1,4 @@
-# DevOps Pipeline Project
+# DevOps Intern Final Project
 
 **Name**: Jerry Arickmun Dandi  
 **Date**: May 7, 2026  
@@ -9,23 +9,15 @@ This project demonstrates a small but realistic DevOps workflow using:
 - Docker
 - GitHub Actions (CI/CD)
 - Nomad (scheduling containers)
-- Monitoring (Prometheus + Grafana)
+- Monitoring (Loki + Promtail)
 
-All code, configs, screenshots, and documentation are included in this repo.
-
-# DevOps Intern Final Project
-
-**Name**: Jerry Arickmun Dandi  
-**Date**: May 7, 2026  
-
-
-...
+All code and configuration files required for the pipeline are included in this repo.
 
 ## Docker Basics ##
 
 This project uses Docker to containerize the `hello.py` script.
 
-### How to build and run
+### 1. How to build and run
 
 1. Build the image:
    ```bash
@@ -37,67 +29,77 @@ This project uses Docker to containerize the `hello.py` script.
    docker run --rm hello-devops
    ```
 
-Output: hello-devops
+Output: Hello, DevOps!
 
 
 
-
-
-## 5. Job Deployment with Nomad
+## 2. Job Deployment with Nomad
 
 I used a Nomad service job to run the Docker container.
 
 ### How to run
 
-1. Ensure the Docker image exists:
+1. Start the local registry used by Nomad:
 
 ```bash
-docker build -t hello-devops .
+docker compose up -d registry
 ```
 
-2. Start Nomad in dev mode:
+2. Build and push the image to the local registry:
+
+```bash
+docker build -t localhost:5001/hello-devops:v2 .
+docker push localhost:5001/hello-devops:v2
+```
+
+3. Start Nomad in dev mode (if it is not already running):
 
 ```bash
 nomad agent -dev
 ```
 
-3. Run the Nomad job:
+4. Run the Nomad job:
 
 ```bash
 nomad job run nomad/hello.nomad
 ```
 
-4. Check status:
+5. Check status:
 
 ```bash
 nomad status hello-devops
 ```
 
 
-##  6. Monitoring with Grafana Loki
+## 3. Monitoring with Grafana Loki and Promtail
 
-I run Loki locally in Docker to collect logs from containers.
+I run Loki locally in Docker and use Promtail to forward Docker logs into Loki.
 
 ### How to reproduce
 
-1. Start Loki:
+1. Start Loki and Promtail using Docker Compose:
 
 ```bash
-docker run -d --name loki -p 3100:3100 grafana/loki:2.9.1
+docker compose up -d
 ```
 
-2. Install and use `logcli` to query logs:
+2. Verify the Promtail service is running:
 
 ```bash
-ddocker run --rm -it --network host grafana/logcli:latest \
+docker compose logs promtail
+```
+
+3. Query logs with `logcli`:
+
+```bash
+docker run --rm -it --network host grafana/logcli:latest \
   --addr=http://localhost:3100 \
   query '{job="docker"}' --limit=20
 ```
-Details: see `monitoring/loki_setup.txt`.
 
+Details: see `monitoring/loki_setup.txt` and `monitoring/promtail-config.yml`.
 
-
-## 7. Extra Credit – MLflow Tracking
+## 4. Extra Credit – MLflow Tracking
 
 I attempted to log a dummy MLflow experiment to demonstrate tracking capabilities, however, local environment restrictions prevented the global installation of the necessary Python packages
 

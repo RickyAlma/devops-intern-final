@@ -1,35 +1,31 @@
 Monitoring Setup with Grafana Loki
 
-1. How Loki was started:
+This repository now includes a root-level `docker-compose.yml` file that starts Loki, Promtail, and the demo app.
 
-I run Loki in Docker using the official image:
+1. Start Loki and Promtail:
 
-docker run -d \
-  --name loki \
-  -p 3100:3100 \
-  grafana/loki:2.9.1
+```bash
+docker compose up -d
+```
 
-This exposes Loki's HTTP API on port 3100.
+2. Verify Promtail is forwarding Docker logs to Loki:
 
-2. How to view the logs:
+```bash
+docker compose logs promtail
+```
 
-Use the `logcli` tool (Loki CLI):
+3. Query logs with Loki's CLI:
 
-docker run --rm -it \
-  --network host \
-  grafana/logcli:2.9.1 \
+```bash
+docker run --rm -it --network host grafana/logcli:2.9.1 \
   --addr=http://localhost:3100 \
   query '{job="docker"}' --limit=20
+```
 
+Promtail is configured in `monitoring/promtail-config.yml` to scrape Docker JSON logs from `/var/lib/docker/containers/*/*.log` and send them to `http://loki:3100/loki/api/v1/push`.
 
-Create monitoring/docker-compose.yml:
+If your environment uses the older Compose command, you can also run:
 
-version: '3'
-services:
-  loki:
-    image: grafana/loki:2.9.1
-    ports:
-      - "3100:3100"
-
-Then run:
-  docker-compose -f monitoring/docker-compose.yml up -d
+```bash
+docker-compose up -d
+```
